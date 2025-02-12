@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ShoppingListApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List Check Off</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background-color: #f4f4f4; 
+            text-align: center; 
+            margin: 0;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: auto; 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        h2 { 
+            color: #333; 
+            border-bottom: 2px solid #ddd; 
+            padding-bottom: 10px;
+        }
+        .list { 
+            padding: 10px; 
+        }
+        ul { 
+            list-style-type: none; 
+            padding: 0;
+        }
+        li { 
+            background: #f9f9f9; 
+            margin: 8px 0; 
+            padding: 10px; 
+            border-radius: 5px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+        }
+        li:hover { 
+            background: #eaeaea;
+        }
+        button { 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            padding: 5px 12px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        button:hover { 
+            background-color: #218838; 
+        }
+        button:disabled { 
+            background-color: #ccc; 
+            cursor: not-allowed;
+        }
+        .empty-message {
+            color: #888; 
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" ng-controller="ToBuyController as toBuyCtrl">
+    <h2>🛒 To Buy</h2>
+    <div class="list">
+        <p class="empty-message" ng-if="toBuyCtrl.items.length === 0">✅ Everything is bought!</p>
+        <ul>
+            <li ng-repeat="item in toBuyCtrl.items">
+                <span>🛍 Buy {{ item.quantity }} {{ item.name }}</span>
+                <button ng-click="toBuyCtrl.buyItem($index)">Bought</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="container" ng-controller="AlreadyBoughtController as boughtCtrl">
+    <h2>✔ Already Bought</h2>
+    <div class="list">
+        <p class="empty-message" ng-if="boughtCtrl.items.length === 0">❌ Nothing bought yet</p>
+        <ul>
+            <li ng-repeat="item in boughtCtrl.items">
+                <span>✅ Bought {{ item.quantity }} {{ item.name }}</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        angular.module('ShoppingListApp', [])
+        .service('ShoppingListService', function () {
+            var service = this;
+
+            // Initial list of items to buy
+            var toBuyItems = [
+                { name: "🍪 Cookies", quantity: 10 },
+                { name: "🥛 Milk", quantity: 2 },
+                { name: "🍎 Apples", quantity: 5 },
+                { name: "🍞 Bread", quantity: 1 },
+                { name: "🥚 Eggs", quantity: 12 }
+            ];
+            var boughtItems = [];
+
+            service.getToBuyItems = function () {
+                return toBuyItems;
+            };
+
+            service.getBoughtItems = function () {
+                return boughtItems;
+            };
+
+            service.buyItem = function (itemIndex) {
+                var item = toBuyItems[itemIndex];
+                boughtItems.push(item);
+                toBuyItems.splice(itemIndex, 1);
+            };
+        })
+
+        .controller('ToBuyController', ['ShoppingListService', function (ShoppingListService) {
+            var toBuyCtrl = this;
+            toBuyCtrl.items = ShoppingListService.getToBuyItems();
+
+            toBuyCtrl.buyItem = function (index) {
+                ShoppingListService.buyItem(index);
+            };
+        }])
+
+        .controller('AlreadyBoughtController', ['ShoppingListService', function (ShoppingListService) {
+            var boughtCtrl = this;
+            boughtCtrl.items = ShoppingListService.getBoughtItems();
+        }]);
+
+    })();
+</script>
+
+</body>
+</html>
